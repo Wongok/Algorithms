@@ -4,11 +4,12 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
 
-    private int gridSize;
-    private WeightedQuickUnionUF uf;
+    private final int gridSize;
+    private final WeightedQuickUnionUF uf;
+    private final WeightedQuickUnionUF full;
     private boolean[] open;
-    private int start;
-    private int end;
+    private final int start;
+    private final int end;
     private int cnt = 0;
     // creates n-by-n grid, with all sites initially blocked
     // ------------------------------- start site : 0
@@ -20,73 +21,81 @@ public class Percolation {
     // n*(n-1)+1             ...  (n*n)
     // ------------------------------- end site : n^2 + 1
     public Percolation(int n) {
+        if (n <= 0) throw new IllegalArgumentException();
         this.gridSize = n;
         start = 0;
         end = n * n + 1;
         uf = new WeightedQuickUnionUF(gridSize*gridSize + 2);
+        full = new WeightedQuickUnionUF(gridSize*gridSize + 2);
         open = new boolean[gridSize*gridSize + 2];
     }
 
     // opens the site (row, col) if it not open already
     public void open(int row, int col) {
-        if(isOpen(row, col)) return;
-        cnt++;
-        int current = (row - 1) * gridSize + col;
+        int current = getIndex(row, col);
+        if (open[current]) return;
         open[current] = true; // open
+        cnt++;
         // left
         try {
-            if(isOpen(row, col-1)) {
-                int left = (row - 1) * gridSize + col - 1;
+            int left = getIndex(row, col-1);
+            if (open[left]) {
                 uf.union(current, left);
+                full.union(current, left);
             }
-        } catch(ArrayIndexOutOfBoundsException e) {
+        } catch (IllegalArgumentException e) {
         }
         // right
         try {
-            if(isOpen(row, col+1)) {
-                int right = (row - 1) * gridSize + col + 1;
+            int right = getIndex(row, col+1);
+            if (open[right]) {
                 uf.union(current, right);
+                full.union(current, right);
             }
-        } catch(ArrayIndexOutOfBoundsException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         // up
         try {
-            if(isOpen(row-1, col)) {
-                int up = (row - 2) * gridSize + col;
+            int up = getIndex(row-1, col);
+            if (open[up]) {
                 uf.union(current, up);
+                full.union(current, up);
             }
-        } catch(ArrayIndexOutOfBoundsException e) {
+        } catch(IllegalArgumentException e) {
+            if (row == 1) {
+                uf.union(current, start);
+                full.union(current, start);
+            }
         }
 
         // down
         try {
-            if(isOpen(row+1, col)) {
-                int down = row * gridSize + col;
+            int down  = getIndex(row+1, col);
+            if (open[down]) {
                 uf.union(current, down);
+                full.union(current, down);
             }
-        } catch(ArrayIndexOutOfBoundsException e) {
-        }
-
-        if(row == 1) {
-            uf.union(current, start);
-        }
-        if(row == gridSize) {
-            uf.union(current, end);
+        } catch (IllegalArgumentException e) {
+            if(row == gridSize) {
+                uf.union(current, end);
+            }
         }
     }
 
     // is the site (row, col) open?
     public boolean isOpen(int row, int col) {
-        int current = (row - 1) * gridSize + col;
+        int current = getIndex(row, col);
         return open[current];
     }
 
     // is the site (row, col) full?
     // start and current percolate?
+    // prevent backwash
     public boolean isFull(int row, int col) {
-        int current = (row - 1) * gridSize + col;
-        return uf.find(0)==uf.find(current);
+        int current = getIndex(row, col);
+
+        return open[current] && full.find(start) == full.find(current);
     }
 
     // returns the number of open sites
@@ -97,10 +106,11 @@ public class Percolation {
     // does the system percolate?
     // start and end percolate?
     public boolean percolates() {
-        return uf.find(start)==uf.find(end);
+        return uf.find(start) == uf.find(end);
     }
 
-    public static void main(String[] args) {
-        // StdRandom
+    private int getIndex(int row, int col) {
+        if (row <= 0 || row > gridSize || col <= 0 || col > gridSize) throw new IllegalArgumentException();
+        return (row - 1) * gridSize + col;
     }
 }
