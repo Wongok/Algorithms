@@ -1,5 +1,9 @@
 package DesignPattern.Creational;
 
+// 추상 팩토리 패턴은 상세화된 서브클래스를 정의하지 않고도 서로 관련성이 있거나 독립적인 여러 객체군을 생성하기 위한 인터페이스를 제공하는 패턴
+// 구현부에 신경쓰지 않고 인터페이스에 집중하여, 인터페이스만을 사용해 부품을 조립하고 제품으로 완성하는 방법
+// 아래 코드의 PC나 OS와 같은 부품을 추가하려면 기존 로직도 같이 수정해야하므로 비추
+// 새로운 Factory를 만드는 것은 기존 로직을 수정하지 않아도 되므로 간단함
 public class AbstractFactoryPattern {
     public static void main(String[] args) {
         NoteBookFactory macBookFactory = new MacBookFactory();
