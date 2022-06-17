@@ -2,6 +2,9 @@ package DesignPattern.Structural;
 
 import java.util.HashMap;
 
+// 인스턴스를 가능한 한 공유해서 사용함으로써 메모리를 절약하는 패턴
+// 중복 생성될 가능성이 높은 경우, 자원 생성 비용은 큰데 사용빈도가 낮은 경우
+// Singleton은 종류와 상관없이 단 하나 <-> FlyWeight는 하나씩 여러종류
 public class FlyWeightPattern {
     public static void main(String[] args) {
         Tree tree1 = TreeFactory.getTree("green");
